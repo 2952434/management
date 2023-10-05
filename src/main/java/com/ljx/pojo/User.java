@@ -1,33 +1,43 @@
 package com.ljx.pojo;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.opencsv.bean.CsvBindByName;
 import lombok.Data;
 import tk.mybatis.mapper.annotation.KeySql;
-
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Date;
 import java.util.List;
-
 /**
  * 员工
  */
 @Data
-@Table(name = "tb_user2")
+@Table(name="tb_user")
 public class User {
     @Id
     @KeySql(useGeneratedKeys = true)
+    @Excel(name = "编号", orderNum = "0", width = 5)
     private Long id;         //主键
+    @Excel(name = "员工名", orderNum = "1", width = 15)
     private String userName; //员工名
+    @Excel(name = "手机号", orderNum = "2", width = 15)
     private String phone;    //手机号
+    @Excel(name = "省份名", orderNum = "3", width = 15)
     private String province; //省份名
+    @Excel(name = "城市名", orderNum = "4", width = 15)
     private String city;     //城市名
+    @Excel(name = "工资", orderNum = "5", width = 10)
     private Integer salary;   // 工资
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd")
+    @Excel(name = "入职日期",  format = "yyyy-MM-dd",orderNum = "6", width = 15)
     private Date hireDate; // 入职日期
     private String deptId;   //部门id
+    @Excel(name = "出生日期",  format = "yyyy-MM-dd",orderNum = "7", width = 15)
     private Date birthday; //出生日期
+    @Excel(name = "照片", orderNum = "10",width = 15,type = 2)
     private String photo;    //一寸照片
+    @Excel(name = "现在居住地址", orderNum = "9", width = 30)
     private String address;  //现在居住地址
 
     private List<Resource> resourceList; //办公用品

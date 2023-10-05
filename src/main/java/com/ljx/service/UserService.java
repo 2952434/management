@@ -1,5 +1,8 @@
 package com.ljx.service;
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ljx.mapper.ResourceMapper;
@@ -557,5 +560,20 @@ public class UserService {
         response.setHeader("content-disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         word.write(response.getOutputStream());
+    }
+
+    public void downLoadXlsxWithEayPoi(HttpServletResponse response) throws Exception {
+        //        查询用户数据
+        List<User> userList = userMapper.selectAll();
+        //指定导出的格式是高版本的格式
+        ExportParams exportParams = new ExportParams("员工信息", "数据", ExcelType.XSSF);
+        //        直接使用EasyPOI提供的方法
+        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, User.class, userList);
+        String filename = "员工信息.xlsx";
+        //            设置文件的打开方式和mime类型
+        ServletOutputStream outputStream = response.getOutputStream();
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        workbook.write(outputStream);
     }
 }
