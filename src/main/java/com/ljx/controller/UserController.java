@@ -46,4 +46,9 @@ public class UserController {
 //        userService.downLoadUserInfoWithTempalte(id, request, response);
         userService.downLoadUserInfoWithTempalte2(id, request, response);
     }
+
+    @GetMapping(value = "/downLoadMillion", name = "导出用户百万数据的导出")
+    public void downLoadMillion(Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        userService.downLoadMillion(request, response);
+    }
 }
