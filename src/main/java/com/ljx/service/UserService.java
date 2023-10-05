@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ljx.mapper.UserMapper;
 import com.ljx.pojo.User;
+import com.ljx.utils.ExcelExportEngine;
 import org.apache.poi.ss.usermodel.*;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
@@ -313,6 +314,26 @@ public class UserService {
 //        导出的文件名称
         String filename = "用户详细信息数据.xlsx";
 //        设置文件的打开方式和mime类型
+        ServletOutputStream outputStream = response.getOutputStream();
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        workbook.write(outputStream);
+    }
+
+
+    public void downLoadUserInfoWithTempalte2(Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //        获取模板的路径
+        File rootPath = new File(URLDecoder.decode(ResourceUtils.getURL("classpath:").getPath(), "utf-8")); //SpringBoot项目获取根目录的方式
+        File templatePath = new File(rootPath.getAbsolutePath(), "/excel_template/userInfo2.xlsx");
+        //        读取模板文件产生workbook对象,这个workbook是一个有内容的工作薄
+        Workbook workbook = new XSSFWorkbook(templatePath);
+        // 查询用户信息
+        User user = userMapper.selectByPrimaryKey(id);
+        // 这里使用引擎直接导出
+        ExcelExportEngine.writeToExcel(user, workbook, user.getPhoto());
+        //            导出的文件名称
+        String filename = "用户详细信息数据.xlsx";
+        //            设置文件的打开方式和mime类型
         ServletOutputStream outputStream = response.getOutputStream();
         response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
