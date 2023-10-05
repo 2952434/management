@@ -51,4 +51,9 @@ public class UserController {
     public void downLoadMillion(Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
         userService.downLoadMillion(request, response);
     }
+
+    @GetMapping(value = "/downLoadCSV", name = "导出用户数据到CSV文件中")
+    public void downLoadCSV(HttpServletResponse response) {
+        userService.downLoadCSV(response);
+    }
 }

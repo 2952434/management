@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.ljx.mapper.UserMapper;
 import com.ljx.pojo.User;
 import com.ljx.utils.ExcelExportEngine;
+import com.opencsv.CSVWriter;
 import org.apache.poi.ss.usermodel.*;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.OutputStreamWriter;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -408,5 +410,40 @@ public class UserService {
         response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         workbook.write(outputStream);
+    }
+
+    public void downLoadCSV(HttpServletResponse response) {
+        try {
+            //            准备输出流
+            ServletOutputStream outputStream = response.getOutputStream();
+            //            文件名
+            String filename = "百万数据.csv";
+            //            设置两个头 一个是文件的打开方式 一个是mime类型
+            response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
+            response.setContentType("text/csv");
+            //            创建一个用来写入到csv文件中的writer
+            CSVWriter writer = new CSVWriter(new OutputStreamWriter(outputStream, "utf-8"));
+            //            先写头信息
+            writer.writeNext(new String[]{"编号", "姓名", "手机号", "入职日期", "现住址"});
+
+            //            如果文件数据量非常大的时候，我们可以循环查询写入
+            int page = 1;
+            int pageSize = 200000;
+            while (true) {  //不停地查询
+                List<User> userList = this.findPage(page, pageSize);
+                if (CollectionUtils.isEmpty(userList)) {  //如果查询不到就不再查询了
+                    break;
+                }
+                //                把查询到的数据转成数组放入到csv文件中
+                for (User user : userList) {
+                    writer.writeNext(new String[]{user.getId().toString(), user.getUserName(), user.getPhone(), SIMPLE_DATE_FORMAT.format(user.getHireDate()), user.getAddress()});
+                }
+                writer.flush();
+                page++;
+            }
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
