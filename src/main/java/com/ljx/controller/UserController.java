@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -35,7 +36,8 @@ public class UserController {
     }
 
     @GetMapping(value = "/downLoadXlsxByPoi", name = "使用POI下载高版本")
-    public void downLoadXlsx(HttpServletResponse response) throws Exception {
-        userService.downLoadXlsx(response);
+    public void downLoadXlsx(HttpServletRequest request, HttpServletResponse response) throws Exception {
+//        userService.downLoadXlsx(response);
+        userService.downLoadXlsxWithTempalte(request, response); //下载的excel带样式
     }
 }
