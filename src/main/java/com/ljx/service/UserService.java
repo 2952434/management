@@ -1,5 +1,7 @@
 package com.ljx.service;
 
+import cn.afterturn.easypoi.csv.CsvExportUtil;
+import cn.afterturn.easypoi.csv.entity.CsvExportParams;
 import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
@@ -622,5 +624,20 @@ public class UserService {
         response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         workbook.write(outputStream);
+    }
+
+    public void downLoadCSVWithEasyPOI(HttpServletResponse response) throws Exception {
+        ServletOutputStream outputStream = response.getOutputStream();
+//        文件名
+        String filename = "百万数据.csv";
+//        设置两个头 一个是文件的打开方式 一个是mime类型
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
+        response.setContentType("application/csv");
+//        创建一个用来写入到csv文件中的writer
+        CsvExportParams params = new CsvExportParams();
+//        设置忽略的列
+        params.setExclusions(new String[]{"照片"}); //这里写表头 中文
+        List<User> list = userMapper.selectAll();
+        CsvExportUtil.exportCsv(params, User.class, list, outputStream);
     }
 }

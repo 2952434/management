@@ -55,8 +55,9 @@ public class UserController {
     }
 
     @GetMapping(value = "/downLoadCSV", name = "导出用户数据到CSV文件中")
-    public void downLoadCSV(HttpServletResponse response) {
-        userService.downLoadCSV(response);
+    public void downLoadCSV(HttpServletResponse response) throws Exception {
+//        userService.downLoadCSV(response);
+        userService.downLoadCSVWithEasyPOI(response);
     }
 
     @GetMapping("/{id}")
