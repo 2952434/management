@@ -1,9 +1,11 @@
 package com.ljx.service;
 
+import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -11,6 +13,7 @@ import com.ljx.mapper.ResourceMapper;
 import com.ljx.mapper.UserMapper;
 import com.ljx.pojo.Resource;
 import com.ljx.pojo.User;
+import com.ljx.utils.EntityUtils;
 import com.ljx.utils.ExcelExportEngine;
 import com.opencsv.CSVWriter;
 import org.apache.poi.ss.usermodel.*;
@@ -591,5 +594,33 @@ public class UserService {
             user.setId(null);
             userMapper.insertSelective(user);
         }
+    }
+
+    public void downLoadUserInfoWithEastPOI(Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //        获取模板的路径
+        File rootPath = new File(URLDecoder.decode(ResourceUtils.getURL("classpath:").getPath(), "utf-8")); //SpringBoot项目获取根目录的方式
+        File templatePath = new File(rootPath.getAbsolutePath(), "/excel_template/userInfo3.xlsx");
+        //        读取模板文件
+        TemplateExportParams params = new TemplateExportParams(templatePath.getPath(), true);
+
+        //        查询用户，转成map
+        User user = userMapper.selectByPrimaryKey(id);
+        Map<String, Object> map = EntityUtils.entityToMap(user);
+        ImageEntity image = new ImageEntity();
+        //        image.setHeight(640); //测试发现 这里设置了长度和宽度在合并后的单元格中没有作用
+        //        image.setWidth(380);
+        image.setRowspan(4);//向下合并三行
+        image.setColspan(2);//向右合并两列
+        image.setUrl(user.getPhoto());
+        map.put("photo", image);
+        Workbook workbook = ExcelExportUtil.exportExcel(params, map);
+
+        //            导出的文件名称
+        String filename = "用户详细信息数据.xlsx";
+        //            设置文件的打开方式和mime类型
+        ServletOutputStream outputStream = response.getOutputStream();
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        workbook.write(outputStream);
     }
 }

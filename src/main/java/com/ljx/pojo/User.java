@@ -35,7 +35,7 @@ public class User {
     private String deptId;   //部门id
     @Excel(name = "出生日期",  format = "yyyy-MM-dd",orderNum = "7", width = 15,isImportField="true")
     private Date birthday; //出生日期
-    @Excel(name = "照片", orderNum = "10",width = 15,type = 2,isImportField="true",savePath = "E:\\学习\\Java\\编程强化\\Java报表数据可视化过程\\day01\\资料\\user_management\\src\\main\\resources\\static\\user_photos\\")
+    @Excel(name = "照片", orderNum = "10",width = 15,type = 2,isImportField="true",savePath = "src/main/resources/static/user_photos")
     private String photo;    //一寸照片
     @Excel(name = "现在居住地址", orderNum = "9", width = 30,isImportField="true")
     private String address;  //现在居住地址
