@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.*;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,12 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
@@ -242,5 +246,76 @@ public class UserService {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         workbook.write(outputStream);
 
+    }
+
+
+    public void downLoadUserInfoWithTempalte(Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        //        获取模板的路径
+        File rootPath = new File(URLDecoder.decode(ResourceUtils.getURL("classpath:").getPath(), "utf-8")); //SpringBoot项目获取根目录的方式
+        File templatePath = new File(rootPath.getAbsolutePath(), "/excel_template/userInfo.xlsx");
+//        读取模板文件产生workbook对象,这个workbook是一个有内容的工作薄
+        Workbook workbook = new XSSFWorkbook(templatePath);
+//        读取工作薄的第一个工作表，向工作表中放数据
+        Sheet sheet = workbook.getSheetAt(0);
+//        处理内容
+        User user = userMapper.selectByPrimaryKey(id);
+//        接下来向模板中单元格中放数据
+//        用户名   第2行第2列
+        sheet.getRow(1).getCell(1).setCellValue(user.getUserName());
+//        手机号   第3行第2列
+        sheet.getRow(2).getCell(1).setCellValue(user.getPhone());
+//        生日     第4行第2列  日期转成字符串
+        sheet.getRow(3).getCell(1).setCellValue
+                (SIMPLE_DATE_FORMAT.format(user.getBirthday()));
+//        工资 第5行第2列
+        sheet.getRow(4).getCell(1).setCellValue(user.getSalary());
+//        工资 第6行第2列
+        sheet.getRow(5).getCell(1).setCellValue
+                (SIMPLE_DATE_FORMAT.format(user.getHireDate()));
+//        省份     第7行第2列
+        sheet.getRow(6).getCell(1).setCellValue(user.getProvince());
+//        现住址   第8行第2列
+        sheet.getRow(7).getCell(1).setCellValue(user.getAddress());
+//        司龄     第6行第4列暂时先不考虑
+        sheet.getRow(5).getCell(3).setCellFormula("CONCATENATE(DATEDIF(B6,TODAY(),\"Y\"),\"年\",DATEDIF(B6,TODAY(),\"YM\"),\"个月\")");
+//        城市     第7行第4列
+        sheet.getRow(6).getCell(3).setCellValue(user.getCity());
+
+//        处理图片
+//        先创建一个字节输出流
+        ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
+//        BufferedImage是一个带缓冲区图像类,主要作用是将一幅图片加载到内存中
+        BufferedImage bufferImg = ImageIO.read(new File(rootPath + user.getPhoto()));
+//        把读取到图像放入到输出流中
+        String[] split = user.getPhoto().split("\\.");
+        String extName = split[split.length - 1].toUpperCase();
+        ImageIO.write(bufferImg, extName, byteArrayOut);
+//        创建一个绘图控制类，负责画图
+        Drawing patriarch = sheet.createDrawingPatriarch();
+//        指定图片的位置   开始列3开始行2结束列4结束行5
+//        偏移的单位:是一个英式公制的单位1厘米=360000
+        ClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, 2, 1, 4, 5);
+        int format = 0;
+        switch (extName) {
+            case "JPG": {
+                format = Workbook.PICTURE_TYPE_JPEG;
+            }
+            case "JPEG": {
+                format = Workbook.PICTURE_TYPE_JPEG;
+            }
+            case "PNG": {
+                format = Workbook.PICTURE_TYPE_PNG;
+            }
+        }
+//        开始把图片写入到sheet指定的位置
+        patriarch.createPicture(anchor, workbook.addPicture(
+                byteArrayOut.toByteArray(), format));
+//        导出的文件名称
+        String filename = "用户详细信息数据.xlsx";
+//        设置文件的打开方式和mime类型
+        ServletOutputStream outputStream = response.getOutputStream();
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        workbook.write(outputStream);
     }
 }

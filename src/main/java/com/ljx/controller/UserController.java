@@ -40,4 +40,9 @@ public class UserController {
 //        userService.downLoadXlsx(response);
         userService.downLoadXlsxWithTempalte(request, response); //下载的excel带样式
     }
+
+    @GetMapping(value = "/download", name = "导出用户详细信息")
+    public void downLoadUserInfoWithTempalte(Long id, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        userService.downLoadUserInfoWithTempalte(id, request, response);
+    }
 }
