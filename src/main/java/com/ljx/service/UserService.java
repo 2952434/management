@@ -136,4 +136,58 @@ public class UserService {
         }
 
     }
+
+    public void downLoadXlsx(HttpServletResponse response) throws Exception {
+        //        创建一个空的工作薄
+        Workbook workbook = new XSSFWorkbook();
+        //        在工作薄中创建一个工作表
+        Sheet sheet = workbook.createSheet("测试");
+        //        设置列宽
+        sheet.setColumnWidth(0, 5 * 256);
+        sheet.setColumnWidth(1, 8 * 256);
+        sheet.setColumnWidth(2, 15 * 256);
+        sheet.setColumnWidth(3, 15 * 256);
+        sheet.setColumnWidth(4, 30 * 256);
+        //            处理标题
+        String[] titles = new String[]{"编号", "姓名", "手机号", "入职日期", "现住址"};
+
+        //        创建标题行
+        Row titleRow = sheet.createRow(0);
+        Cell cell = null;
+        for (int i = 0; i < titles.length; i++) {
+            cell = titleRow.createCell(i);
+            cell.setCellValue(titles[i]);
+        }
+        //        处理内容
+        List<User> userList = this.findAll();
+        int rowIndex = 1;
+        Row row = null;
+        for (User user : userList) {
+            row = sheet.createRow(rowIndex);
+            cell = row.createCell(0);
+            cell.setCellValue(user.getId());
+
+            cell = row.createCell(1);
+            cell.setCellValue(user.getUserName());
+
+            cell = row.createCell(2);
+            cell.setCellValue(user.getPhone());
+
+            cell = row.createCell(3);
+            cell.setCellValue(SIMPLE_DATE_FORMAT.format(user.getHireDate()));
+
+            cell = row.createCell(4);
+            cell.setCellValue(user.getAddress());
+
+            rowIndex++;
+        }
+        //            导出的文件名称
+        String filename = "员工数据.xlsx";
+        //            设置文件的打开方式和mime类型
+        ServletOutputStream outputStream = response.getOutputStream();
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        workbook.write(outputStream);
+
+    }
 }

@@ -33,4 +33,9 @@ public class UserController {
     public void uploadExcel(MultipartFile file) throws Exception {
         userService.uploadExcel(file);
     }
+
+    @GetMapping(value = "/downLoadXlsxByPoi", name = "使用POI下载高版本")
+    public void downLoadXlsx(HttpServletResponse response) throws Exception {
+        userService.downLoadXlsx(response);
+    }
 }
