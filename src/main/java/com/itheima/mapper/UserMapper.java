@@ -2,11 +2,13 @@ package com.itheima.mapper;
 
 import com.itheima.pojo.User;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.stereotype.Repository;
 import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;
 import java.util.Map;
 
+@Repository
 public interface UserMapper extends Mapper<User> {
 
     @Select(value = "select dept_name deptName,count(u.id) num from tb_dept d LEFT JOIN tb_user u on  d.id=u.dept_id GROUP BY dept_name")

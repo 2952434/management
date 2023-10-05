@@ -25,7 +25,8 @@ public class UserController {
         return userService.findPage(page,pageSize);
     }
 
-
-
-
+    @GetMapping("/downLoadXlsByJxl")
+    public void downLoadXlsByJxl(HttpServletResponse response) {
+        userService.downLoadXlsByJxl(response);
+    }
 }
