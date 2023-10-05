@@ -1,7 +1,6 @@
-package com.itheima.mapper;
+package com.ljx.mapper;
 
-import com.itheima.pojo.Resource;
-import com.itheima.pojo.User;
+import com.ljx.pojo.Resource;
 import tk.mybatis.mapper.common.Mapper;
 
 public interface ResourceMapper extends Mapper<Resource> {

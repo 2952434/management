@@ -1,4 +1,4 @@
-package com.itheima.pojo;
+package com.ljx.pojo;
 
 import lombok.Data;
 

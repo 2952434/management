@@ -1,4 +1,4 @@
-package com.itheima.pojo;
+package com.ljx.pojo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import tk.mybatis.mapper.annotation.KeySql;

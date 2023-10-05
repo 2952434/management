@@ -1,4 +1,4 @@
-package com.itheima.service;
+package com.ljx.service;
 
 import org.springframework.stereotype.Service;
 

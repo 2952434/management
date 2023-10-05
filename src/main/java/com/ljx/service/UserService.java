@@ -1,17 +1,20 @@
-package com.itheima.service;
+package com.ljx.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.itheima.mapper.UserMapper;
-import com.itheima.pojo.User;
-//import jxl.Workbook;
-//import org.apache.poi.ss.usermodel.Workbook;
-import jxl.Workbook;
+import com.ljx.mapper.UserMapper;
+import com.ljx.pojo.User;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import jxl.write.Label;
 import jxl.write.WritableSheet;
 import jxl.write.WritableWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import javax.servlet.ServletOutputStream;
@@ -41,7 +44,7 @@ public class UserService {
         try {
 //            创建一个工作薄
             ServletOutputStream outputStream = response.getOutputStream();
-            WritableWorkbook workbook = Workbook.createWorkbook(outputStream);
+            WritableWorkbook workbook = jxl.Workbook.createWorkbook(outputStream);
 //            创建一个工作表
             WritableSheet sheet = workbook.createSheet("一个JXL入门", 0);
 //            设置列宽
@@ -87,5 +90,50 @@ public class UserService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void uploadExcel(MultipartFile file) throws Exception {
+        Workbook workbook = new XSSFWorkbook(file.getInputStream()); //根据上传的输入流创建workbook
+        Sheet sheet = workbook.getSheetAt(0); //获取工作薄中的第一个工作表
+        int lastRowIndex = sheet.getLastRowNum(); //获取这个sheet中最后一行数据，为了循环遍历
+
+        //        以下三个为了节省栈内存，所以提到循环的外面
+        User user = null;
+        Row row = null;
+        Cell cell = null;
+
+        //开始循环每行，获取每行的单元格中的值，放入到user属性中
+        for (int i = 1; i <= lastRowIndex; i++) {
+            row = sheet.getRow(i);
+            user = new User();
+            //          因为第一个列单元格中是字符串，可以直接使用getStringCellValue方法
+            String userName = row.getCell(0).getStringCellValue(); //用户名
+            user.setUserName(userName);
+            String phone = null; //手机号
+            try {
+                phone = row.getCell(1).getStringCellValue();
+            } catch (IllegalStateException e) {
+                phone = row.getCell(1).getNumericCellValue() + "";
+            }
+            user.setPhone(phone);
+            String province = row.getCell(2).getStringCellValue(); //省份
+            user.setProvince(province);
+            String city = row.getCell(3).getStringCellValue(); //城市
+            user.setCity(city);
+            //            因为在填写excel中的数据时就可以约定这个列只能填写数值，所以可以直接用getNumericCellValue方法
+            Integer salary = ((Double) row.getCell(4).getNumericCellValue()).intValue(); //工资
+            user.setSalary(salary);
+            String hireDateStr = row.getCell(5).getStringCellValue(); //入职日期
+            Date hireDate = SIMPLE_DATE_FORMAT.parse(hireDateStr);
+            user.setHireDate(hireDate);
+            String birthdayStr = row.getCell(6).getStringCellValue(); //出生日期
+            Date birthday = SIMPLE_DATE_FORMAT.parse(birthdayStr);
+            user.setBirthday(birthday);
+
+            String address = row.getCell(7).getStringCellValue(); //现住地址
+            user.setAddress(address);
+            userMapper.insert(user);
+        }
+
     }
 }
