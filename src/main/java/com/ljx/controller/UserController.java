@@ -56,4 +56,15 @@ public class UserController {
     public void downLoadCSV(HttpServletResponse response) {
         userService.downLoadCSV(response);
     }
+
+    @GetMapping("/{id}")
+    public User findById(@PathVariable("id") Long id) {
+        return userService.findById(id);
+    }
+
+    @GetMapping(value = "/downloadContract", name = "导出用户合同")
+    public void downloadContract(Long id, HttpServletResponse response) throws Exception {
+        userService.downloadContract(id, response);
+    }
+
 }

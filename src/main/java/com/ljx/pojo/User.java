@@ -1,4 +1,5 @@
 package com.ljx.pojo;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import tk.mybatis.mapper.annotation.KeySql;
@@ -12,7 +13,7 @@ import java.util.List;
  * 员工
  */
 @Data
-@Table(name="tb_user2")
+@Table(name = "tb_user2")
 public class User {
     @Id
     @KeySql(useGeneratedKeys = true)
@@ -22,7 +23,7 @@ public class User {
     private String province; //省份名
     private String city;     //城市名
     private Integer salary;   // 工资
-    @JsonFormat(pattern="yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date hireDate; // 入职日期
     private String deptId;   //部门id
     private Date birthday; //出生日期
