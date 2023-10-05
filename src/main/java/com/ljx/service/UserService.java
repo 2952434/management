@@ -1,7 +1,9 @@
 package com.ljx.service;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -575,5 +577,19 @@ public class UserService {
         response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         workbook.write(outputStream);
+    }
+
+    public void uploadExcelWithEasyPOI(MultipartFile file) throws Exception {
+
+        ImportParams importParams = new ImportParams();
+        importParams.setTitleRows(1); //有多少行的标题
+        importParams.setHeadRows(1);//有多少行的头
+        List<User> userList = ExcelImportUtil.importExcel(file.getInputStream(), User.class, importParams);
+
+        System.out.println(userList);
+        for (User user : userList) {
+            user.setId(null);
+            userMapper.insertSelective(user);
+        }
     }
 }

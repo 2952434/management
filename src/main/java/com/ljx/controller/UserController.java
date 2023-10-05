@@ -32,7 +32,8 @@ public class UserController {
 
     @PostMapping(value = "/uploadExcel", name = "上传用户数据")
     public void uploadExcel(MultipartFile file) throws Exception {
-        userService.uploadExcel(file);
+        //        userService.uploadExcle(file);
+        userService.uploadExcelWithEasyPOI(file);
     }
 
     @GetMapping(value = "/downLoadXlsxByPoi", name = "使用POI下载高版本")
