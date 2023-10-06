@@ -1,6 +1,7 @@
 package com.ljx.service;
 
 import cn.afterturn.easypoi.csv.CsvExportUtil;
+import cn.afterturn.easypoi.csv.CsvImportUtil;
 import cn.afterturn.easypoi.csv.entity.CsvExportParams;
 import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
@@ -9,6 +10,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.afterturn.easypoi.word.WordExportUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.ljx.mapper.ResourceMapper;
@@ -639,5 +641,45 @@ public class UserService {
         params.setExclusions(new String[]{"照片"}); //这里写表头 中文
         List<User> list = userMapper.selectAll();
         CsvExportUtil.exportCsv(params, User.class, list, outputStream);
+    }
+
+    public void downloadContractWithEasyPOI(Long id, HttpServletResponse response) throws Exception {
+
+        File rootPath = new File(URLDecoder.decode(ResourceUtils.getURL("classpath:").getPath(), "utf-8")); //SpringBoot项目获取根目录的方式
+        File templatePath = new File(rootPath.getAbsolutePath(), "/word_template/contract_template2.docx");
+
+        //        先获取导出word需要的数据
+        User user = this.findById(id);
+        //        把需要的数据放到map中，方便替换
+        Map<String, Object> params = new HashMap<>();
+        params.put("userName", user.getUserName());
+        params.put("hireDate", SIMPLE_DATE_FORMAT.format(user.getHireDate()));
+        params.put("address", user.getAddress());
+
+        //        下面是表格中需要的数据
+        List<Map<String, Object>> maplist = new ArrayList<>();
+        Map<String, Object> map;
+        for (Resource resource : user.getResourceList()) {
+            map = new HashMap<>();
+            map.put("name", resource.getName());
+            map.put("price", resource.getPrice());
+            map.put("needReturn", resource.getNeedReturn());
+            ImageEntity image = new ImageEntity();
+            image.setHeight(180);
+            image.setWidth(240);
+            image.setUrl(rootPath.getPath() + "\\static" + resource.getPhoto());
+            map.put("photo", image);
+            maplist.add(map);
+        }
+        //        把组建好的表格需要的数据放到大map中
+        params.put("maplist", maplist);
+        //        根据模板+数据 导出文档
+        XWPFDocument xwpfDocument = WordExportUtil.exportWord07(templatePath.getPath(), params);
+        String filename = user.getUserName() + "_合同.docx";
+        //            设置文件的打开方式和mime类型
+        ServletOutputStream outputStream = response.getOutputStream();
+        response.setHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes(), "ISO8859-1"));
+        response.setContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+        xwpfDocument.write(outputStream);
     }
 }

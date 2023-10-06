@@ -67,7 +67,8 @@ public class UserController {
 
     @GetMapping(value = "/downloadContract", name = "导出用户合同")
     public void downloadContract(Long id, HttpServletResponse response) throws Exception {
-        userService.downloadContract(id, response);
+//        userService.downloadContract(id, response);
+        userService.downloadContractWithEasyPOI(id,response);
     }
 
     @GetMapping(value = "/downLoadWithEasyPOI", name = "使用EasyPOI下载Excel")
